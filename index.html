@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Marielle</title>
+<meta name="theme-color" content="#f7d9e2">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Great+Vibes&family=Jost:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blush:#fbe6ec; --blush2:#f6d3dd; --rose:#e7a3b6; --rose-deep:#b4577a; --plum:#7a3352;
+  --gold:#c9a24a; --gold-lt:#f3dc9a; --gold-dk:#8d6a25; --paper:#fffaf6; --ink:#5b2a40;
+  --gold-grad:linear-gradient(135deg,#9c7429 0%,#e9cf86 28%,#fff1c4 45%,#d1aa52 62%,#8d6a25 100%);
+  --pw:400px; --ph:560px;
+  --safe-t:env(safe-area-inset-top,0px); --safe-b:env(safe-area-inset-bottom,0px);
+  --ease-paper:cubic-bezier(.22,.9,.28,1.08);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:"Cormorant Garamond",Georgia,serif;color:var(--ink);overflow:hidden;
+  background:radial-gradient(120% 90% at 50% 0%,#fff4f6 0%,var(--blush) 45%,var(--blush2) 100%);
+  -webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;
+}
+
+/* ---------- falling paper pieces ---------- */
+.bg{position:fixed;inset:0;pointer-events:none;overflow:hidden}
+.bg::before{content:"";position:absolute;inset:0;background-image:var(--pattern);background-size:110px 110px;opacity:.5}
+.fall{position:absolute;top:-70px;left:var(--x);animation:fall var(--d) linear var(--delay) infinite;will-change:transform}
+.sway{animation:sway calc(var(--d) / 5) ease-in-out var(--delay) infinite alternate}
+.flutter{width:var(--s);height:var(--s);background:var(--c);opacity:.6;
+  -webkit-mask:var(--m) center/100% 100% no-repeat;mask:var(--m) center/100% 100% no-repeat;
+  animation:flutter calc(var(--d) / 7) ease-in-out var(--delay) infinite alternate}
+@keyframes fall{to{transform:translateY(calc(100vh + 140px))}}
+@keyframes sway{from{transform:translateX(calc(var(--sw) * -1))}to{transform:translateX(var(--sw))}}
+@keyframes flutter{from{transform:rotate3d(1,.4,.2,-55deg) rotate(-25deg)}to{transform:rotate3d(.3,1,.2,60deg) rotate(30deg)}}
+
+/* ---------- stage ---------- */
+.stage{position:relative;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:calc(8px + var(--safe-t)) 6px calc(10px + var(--safe-b));gap:12px}
+.hint{font-family:Jost,sans-serif;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--rose-deep);opacity:.75;text-align:center;padding:0 12px}
+.table{position:relative;width:calc(var(--pw) * 2);height:var(--ph);perspective:1800px}
+.shift{position:absolute;inset:0;transition:transform 1s var(--ease-paper)}
+.shift.closed-front{transform:translateX(calc(var(--pw) * -.5))}
+.shift.closed-back{transform:translateX(calc(var(--pw) * .5))}
+.drop{position:absolute;inset:0;transform-origin:50% 100%;animation:setdown 1.4s var(--ease-paper) both}
+@keyframes setdown{0%{opacity:0;transform:translateY(-40px) rotateX(28deg) rotateZ(-3deg) scale(.94)}60%{opacity:1}100%{transform:none}}
+.book-shadow{position:absolute;left:4%;right:4%;bottom:-14px;height:28px;border-radius:50%;
+  background:radial-gradient(closest-side,rgba(122,51,82,.35),transparent);filter:blur(4px);transition:left 1s var(--ease-paper),right 1s var(--ease-paper)}
+.closed-front .book-shadow{left:52%}.closed-back .book-shadow{right:52%}
+#book{position:absolute;inset:0}
+
+/* ---------- pages ---------- */
+.page{background:transparent}
+.face{position:absolute;inset:0;overflow:hidden;container-type:size}
+.stf__item.--right .face{border-radius:2px 10px 10px 2px}
+.stf__item.--left .face{border-radius:10px 2px 2px 10px}
+.paper{background:
+  var(--grain),
+  var(--pattern-soft),
+  radial-gradient(120% 100% at 60% 40%,#fffdfb 0%,var(--paper) 55%,#fbefe9 100%);
+  background-size:180px 180px,64px 64px,auto}
+/* spine curvature: light falloff toward the gutter like a real bound page */
+.paper::before{content:"";position:absolute;inset:0;pointer-events:none;z-index:3}
+.stf__item.--right .paper::before{background:linear-gradient(90deg,rgba(150,70,100,.22) 0%,rgba(150,70,100,.06) 4%,transparent 10%,transparent 94%,rgba(255,255,255,.4) 100%)}
+.stf__item.--left .paper::before{background:linear-gradient(270deg,rgba(150,70,100,.22) 0%,rgba(150,70,100,.06) 4%,transparent 10%,transparent 94%,rgba(255,255,255,.4) 100%)}
+/* stacked page edges */
+.stf__item.--right .paper::after,.stf__item.--left .paper::after{content:"";position:absolute;top:0;bottom:0;width:3px;z-index:3;
+  background:repeating-linear-gradient(180deg,#f4e6df 0 1px,#fffaf6 1px 2px)}
+.stf__item.--right .paper::after{right:0}.stf__item.--left .paper::after{left:0}
+
+.frame{position:absolute;inset:3.2cqw;border:1px solid rgba(201,162,74,.55);border-radius:2px;pointer-events:none}
+.frame::before{content:"";position:absolute;inset:1.1cqw;border:1px solid rgba(201,162,74,.28)}
+.corner{position:absolute;width:6.5cqw;height:6.5cqw;background:var(--gold-grad);
+  -webkit-mask:var(--m-corner) center/100% 100%;mask:var(--m-corner) center/100% 100%}
+.corner.tl{top:1.6cqw;left:1.6cqw}.corner.tr{top:1.6cqw;right:1.6cqw;transform:scaleX(-1)}
+.corner.bl{bottom:1.6cqw;left:1.6cqw;transform:scaleY(-1)}.corner.br{bottom:1.6cqw;right:1.6cqw;transform:scale(-1,-1)}
+.content{position:absolute;inset:0;padding:9cqw 9cqw 8cqw;display:flex;flex-direction:column;align-items:center;text-align:center}
+.pno{position:absolute;bottom:4.4cqw;left:0;right:0;text-align:center;font-style:italic;font-size:min(3.4cqw,15px);color:var(--gold-dk);opacity:.85}
+
+/* dog-ear peel hint on the right-hand page */
+.peel{position:absolute;right:0;bottom:0;width:9cqw;height:9cqw;z-index:4;pointer-events:none;
+  background:linear-gradient(315deg,transparent 50%,#f3e3dc 50%,#fffaf6 64%,#ead3cc 100%);
+  box-shadow:-2px -2px 5px rgba(122,51,82,.12);border-top-left-radius:2px;transform-origin:100% 100%;
+  animation:peel 5s ease-in-out 2s infinite}
+.stf__item.--left .peel{display:none}
+@keyframes peel{0%,78%,100%{transform:scale(.55);opacity:.85}86%{transform:scale(1.15);opacity:1}92%{transform:scale(.8)}}
+
+.gold-text{background:var(--gold-grad);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 6s ease-in-out infinite}
+@keyframes shine{0%,100%{background-position:0% 0}50%{background-position:100% 0}}
+.script{font-family:"Great Vibes",cursive;font-weight:400;line-height:1.05}
+.kicker{font-family:Jost,sans-serif;font-size:min(2.9cqw,12px);letter-spacing:.3em;text-transform:uppercase;color:var(--rose-deep)}
+.divider{display:flex;align-items:center;gap:2.4cqw;width:52%;margin:2.6cqw auto}
+.divider::before,.divider::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);transform-origin:center}
+.divider i{width:4.4cqw;height:4.4cqw;background:var(--gold-grad);-webkit-mask:var(--m-piece) center/100% 100%;mask:var(--m-piece) center/100% 100%}
+
+/* ---------- covers (hard board) ---------- */
+.cover{background:
+  radial-gradient(90% 70% at 30% 20%,rgba(255,255,255,.35),transparent 60%),
+  var(--grain),
+  var(--pattern-gold),
+  linear-gradient(150deg,#f2b9c9 0%,#e49ab0 45%,#cf7b97 100%);
+  background-size:auto,180px 180px,72px 72px,auto}
+.stf__item.--right .cover{border-radius:3px 12px 12px 3px}
+.stf__item.--left .cover{border-radius:12px 3px 3px 12px}
+.cover::after{content:"";position:absolute;inset:0;pointer-events:none}
+.stf__item.--right .cover::after{background:linear-gradient(90deg,rgba(90,20,50,.32),rgba(255,255,255,.18) 3%,transparent 9%)}
+.stf__item.--left .cover::after{background:linear-gradient(270deg,rgba(90,20,50,.32),rgba(255,255,255,.18) 3%,transparent 9%)}
+.cover .frame{border:2px solid transparent;border-image:var(--gold-grad) 1;inset:4.5cqw}
+.cover .frame::before{border:1px solid rgba(255,236,190,.6);inset:1.6cqw}
+.cover .content{justify-content:center;gap:1.5cqh;color:#fff}
+.emblem{width:19cqw;height:19cqw;background:var(--gold-grad);-webkit-mask:var(--m-heart) center/100% 100%;mask:var(--m-heart) center/100% 100%;
+  filter:drop-shadow(0 2px 3px rgba(90,20,50,.3));animation:bob 4s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-1.2cqw) rotate(-4deg)}}
+.cover .pre{font-family:Jost,sans-serif;font-size:min(3cqw,13px);letter-spacing:.4em;text-transform:uppercase;color:#fff8ee;text-shadow:0 1px 2px rgba(90,20,50,.35)}
+.cover h1{font-size:min(23cqw,15cqh);filter:drop-shadow(0 2px 2px rgba(90,20,50,.35));padding:0 2cqw}
+.cover .sub{font-style:italic;font-size:min(5.6cqw,24px);color:#fff9f1;text-shadow:0 1px 3px rgba(90,20,50,.4)}
+.tap{margin-top:3cqh;font-family:Jost,sans-serif;font-size:min(2.9cqw,12px);letter-spacing:.3em;text-transform:uppercase;color:#fff;
+  padding:2.2cqw 4.8cqw;border:1px solid rgba(255,240,200,.75);border-radius:999px;background:rgba(255,255,255,.12);animation:pulse 2.2s ease-in-out infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,240,200,.45)}50%{box-shadow:0 0 0 2cqw rgba(255,240,200,0);background:rgba(255,255,255,.24)}}
+
+/* ---------- inner pages ---------- */
+.dedication .content{justify-content:center;gap:2.4cqh}
+.dedication .script{font-size:min(19cqw,13cqh)}
+.dedication p{font-size:min(5cqw,23px);line-height:1.45;font-style:italic;max-width:90%}
+.dedication .sig{font-family:Jost,sans-serif;font-style:normal;font-size:min(2.9cqw,12px);letter-spacing:.3em;text-transform:uppercase;color:var(--rose-deep)}
+
+.lp .content{gap:2.2cqh;padding-top:8.5cqw}
+.lp-head{display:flex;align-items:center;gap:3.2cqw;width:100%;justify-content:center}
+.badge{position:relative;width:min(17cqw,12cqh);height:min(17cqw,12cqh);flex:none;display:grid;place-items:center}
+.badge::before{content:"";position:absolute;inset:0;background:var(--gold-grad);-webkit-mask:var(--m-piece) center/100% 100%;mask:var(--m-piece) center/100% 100%;
+  filter:drop-shadow(0 2px 3px rgba(141,106,37,.35))}
+.badge b{position:relative;font-family:"Great Vibes",cursive;font-weight:400;font-size:min(10cqw,7cqh);color:#fff;text-shadow:0 1px 2px rgba(110,70,10,.45);transform:translate(-4%,4%)}
+.lp-title{text-align:left}
+.lp-title h2{font-family:"Great Vibes",cursive;font-weight:400;font-size:min(13cqw,9cqh);line-height:1;color:var(--plum)}
+.photo{flex:1;min-height:0;width:100%;display:flex;justify-content:center;align-items:center;perspective:600px}
+.pp{height:100%;max-width:100%;aspect-ratio:.8;
+  filter:drop-shadow(1.2px 0 0 var(--gold)) drop-shadow(-1.2px 0 0 var(--gold)) drop-shadow(0 1.2px 0 var(--gold)) drop-shadow(0 -1.2px 0 var(--gold)) drop-shadow(0 8px 12px rgba(122,51,82,.28))}
+.pp-m{width:100%;height:100%;-webkit-mask:var(--pm) center/100% 100% no-repeat;mask:var(--pm) center/100% 100% no-repeat;background:var(--blush2)}
+.pp-m img{width:100%;height:100%;object-fit:cover;display:block}
+.line{font-size:min(5.4cqw,25px);line-height:1.3;font-style:italic;max-width:96%;margin-bottom:3cqh}
+.line .cap{font-family:"Great Vibes",cursive;font-style:normal;font-size:1.7em;line-height:.6;color:var(--gold-dk);padding-right:.04em}
+
+.h3{font-family:"Great Vibes",cursive;font-weight:400;font-size:min(13cqw,9cqh);line-height:1;color:var(--plum)}
+.game .content{gap:1.8cqh;justify-content:center}
+.game .sub{font-style:italic;font-size:min(4.6cqw,20px);line-height:1.3;max-width:92%}
+.game-grid{--gs:min(72cqw,46cqh);width:var(--gs);height:var(--gs);display:grid;grid-template-columns:repeat(3,1fr);gap:1.2cqw;
+  padding:1.2cqw;border-radius:2cqw;background:var(--gold-grad);box-shadow:0 10px 22px -8px rgba(122,51,82,.4);transition:gap .5s,padding .5s;cursor:default;touch-action:manipulation}
+.tile{border:0;border-radius:1cqw;background-image:url(assets/puzzle.jpg);background-size:300% 300%;cursor:pointer;
+  transition:transform .25s,box-shadow .25s,border-radius .5s;box-shadow:inset 0 0 0 1px rgba(255,255,255,.35)}
+.tile.swap{animation:paperflip .45s var(--ease-paper)}
+@keyframes paperflip{0%{transform:rotateY(90deg) scale(.9)}100%{transform:none}}
+.tile.sel{transform:scale(.88) rotate(-4deg);box-shadow:inset 0 0 0 3px #fff,0 0 0 2px var(--rose-deep),0 6px 10px rgba(122,51,82,.35)}
+.solved .game-grid{gap:0}
+.solved .tile{border-radius:0;box-shadow:none;cursor:default}
+.game-actions{display:flex;gap:2cqw;align-items:center;min-height:9cqw}
+.btn-soft{font-family:Jost,sans-serif;font-size:min(2.9cqw,12px);letter-spacing:.22em;text-transform:uppercase;color:var(--rose-deep);
+  background:#fff;border:1px solid var(--rose);border-radius:999px;padding:2.2cqw 4.6cqw;cursor:pointer}
+.win{display:none;font-style:italic;font-size:min(4.8cqw,21px);color:var(--plum);max-width:92%;line-height:1.3}
+.solved .win{display:block;animation:fadeup .8s both}
+.solved .game-actions .btn-soft{display:none}
+.moves{font-family:Jost,sans-serif;font-size:min(2.7cqw,11px);letter-spacing:.22em;text-transform:uppercase;color:var(--gold-dk)}
+@keyframes fadeup{from{opacity:0;transform:translateY(8px)}}
+.burst{position:absolute;left:50%;top:50%;width:var(--z);height:var(--z);background:var(--c);pointer-events:none;z-index:9;
+  -webkit-mask:var(--m) center/100% 100%;mask:var(--m) center/100% 100%;animation:burst 2s cubic-bezier(.2,.7,.3,1) forwards}
+@keyframes burst{0%{transform:translate(-50%,-50%) scale(.2);opacity:1}
+  100%{transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y) + 18cqh)) rotate3d(1,1,0,var(--r)) scale(1);opacity:0}}
+
+.spell .content{justify-content:center;gap:3cqh}
+.jig{position:relative}
+.jp{position:absolute;-webkit-mask:var(--pm) center/100% 100%;mask:var(--pm) center/100% 100%;display:grid;place-items:center}
+.jp b{font-family:"Great Vibes",cursive;font-weight:400;color:#fff;text-shadow:0 1px 2px rgba(110,40,60,.35)}
+.jp.g{background:var(--gold-grad)} .jp.p{background:linear-gradient(145deg,#f4bccb,#d9819d)}
+.spell .msg,.gallery .msg{font-style:italic;font-size:min(5.2cqw,24px);line-height:1.35;max-width:92%}
+.spell .dots{font-family:Jost,sans-serif;font-size:min(2.9cqw,12px);letter-spacing:.5em;color:var(--rose-deep)}
+.gallery .content{justify-content:center;gap:2.2cqh}
+.gp{position:absolute;-webkit-mask:var(--pm) center/100% 100%;mask:var(--pm) center/100% 100%;background:var(--blush2)}
+.gp img{width:100%;height:100%;object-fit:cover;display:block}
+
+/* ---------- paper motion when a page comes into view ---------- */
+.in .anim{animation:var(--a,fadeup) .9s var(--ease-paper) both;animation-delay:var(--ad,0s)}
+.in .pp.anim{--a:laydown;animation-duration:1.1s}
+@keyframes laydown{0%{opacity:0;transform:translate(6%,-10%) rotate(-7deg) rotateX(25deg) scale(1.06)}55%{opacity:1}100%{transform:none}}
+.in .badge.anim{--a:stamp}
+@keyframes stamp{0%{opacity:0;transform:scale(1.8) rotate(-30deg)}70%{opacity:1;transform:scale(.92) rotate(4deg)}100%{transform:none}}
+.in .divider.anim{--a:draw}
+@keyframes draw{0%{opacity:0;transform:scaleX(.2)}100%{transform:none}}
+.in .jp.anim{--a:snap;animation-duration:.8s}
+@keyframes snap{0%{opacity:0;transform:translate(var(--fx),var(--fy)) rotate(var(--fr)) rotateY(70deg)}70%{opacity:1}100%{transform:none}}
+.in .gp.anim{--a:snap}
+.in .game-grid.anim{--a:laydown}
+
+/* ---------- controls ---------- */
+.controls{display:flex;align-items:center;gap:14px}
+.nav{width:44px;height:44px;border-radius:50%;border:1px solid var(--gold);background:rgba(255,255,255,.75);display:grid;place-items:center;cursor:pointer;
+  color:var(--rose-deep);box-shadow:0 6px 16px -8px rgba(122,51,82,.5);transition:transform .2s,opacity .2s}
+.nav:hover{transform:translateY(-2px)}
+.nav:active{transform:scale(.92)}
+.nav:disabled{opacity:.3;cursor:default;transform:none}
+.nav svg{width:20px;height:20px}
+.indicator{min-width:130px;text-align:center;font-style:italic;font-size:18px;color:var(--plum)}
+.again{display:none;font-family:Jost,sans-serif;font-size:11px;letter-spacing:.26em;text-transform:uppercase;color:#fff;border:0;border-radius:999px;
+  padding:12px 18px;background:linear-gradient(135deg,#d9819d,var(--rose-deep));cursor:pointer;box-shadow:0 8px 18px -8px rgba(122,51,82,.6)}
+.at-end .again{display:block}.at-end .indicator{display:none}
+.rotate-tip{display:none;align-items:center;gap:8px;font-family:Jost,sans-serif;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--rose-deep);
+  background:rgba(255,255,255,.7);border:1px solid rgba(201,162,74,.5);border-radius:999px;padding:7px 12px;cursor:pointer}
+.rotate-tip svg{width:16px;height:16px;animation:tilt 2.4s ease-in-out infinite}
+@keyframes tilt{0%,30%{transform:rotate(0)}60%,100%{transform:rotate(-90deg)}}
+@media (orientation:portrait) and (max-width:600px){.rotate-tip.show{display:flex}.hint{font-size:10px}}
+@media (max-height:520px){.hint{display:none}.stage{gap:6px}.nav{width:38px;height:38px}.indicator{font-size:16px}}
+@media (prefers-reduced-motion:reduce){.fall,.gold-text,.emblem,.tap,.peel,.drop{animation:none!important}.in .anim{animation-duration:.01s!important}}
+</style>
+</head>
+<body>
+<div class="bg" id="bg"></div>
+<main class="stage" id="stage">
+  <div class="hint" id="hint">Tap a page, or drag its corner to turn</div>
+  <div class="table" id="table">
+    <div class="shift closed-front" id="shift">
+      <div class="drop"><div class="book-shadow"></div><div id="book"></div></div>
+    </div>
+  </div>
+  <div class="controls" id="controls">
+    <button class="nav" id="prev" aria-label="Previous page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <div class="indicator" id="ind">Cover</div>
+    <button class="again" id="again">Read again</button>
+    <button class="nav" id="next" aria-label="Next page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
+  </div>
+  <button class="rotate-tip" id="rotateTip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/></svg>Rotate for a bigger book</button>
+</main>
+
+<script src="assets/vendor/page-flip.js"></script>
+<script>
+(() => {
+/* ---------- jigsaw shape generator ---------- */
+function edge(px,py,dx,dy,nx,ny,tp,L,h){
+  const P=(s,o)=>`${(px+dx*s*L+nx*o).toFixed(2)} ${(py+dy*s*L+ny*o).toFixed(2)}`;
+  if(!tp) return ` L${P(1,0)}`;
+  const H=h*tp;
+  return ` L${P(.36,0)} C${P(.43,0)} ${P(.28,H)} ${P(.5,H)} C${P(.72,H)} ${P(.57,0)} ${P(.64,0)} L${P(1,0)}`;
+}
+function piecePath([t,r,b,l],inset=15){
+  const A=inset,B=100-inset,L=B-A,h=inset*.87;
+  return `M${A} ${A}`+edge(A,A,1,0,0,-1,t,L,h)+edge(B,A,0,1,1,0,r,L,h)+edge(B,B,-1,0,0,1,b,L,h)+edge(A,B,0,-1,-1,0,l,L,h)+'Z';
+}
+const svgURL=(inner,vb='0 0 100 100',par="preserveAspectRatio='none'")=>
+  `url('data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='${vb}' ${par}>${inner}</svg>`).replace(/'/g,'%27')}')`;
+const maskOf=(edges,inset)=>svgURL(`<path d='${piecePath(edges,inset)}' fill='black'/>`);
+
+const root=document.documentElement.style;
+const tile=(stroke,op,w)=>svgURL(`<g fill='none' stroke='${stroke}' stroke-opacity='${op}' stroke-width='${w}'><path d='M15 15${edge(15,15,1,0,0,-1,-1,70,13)}'/><path d='M15 85${edge(15,85,0,-1,-1,0,-1,70,13)}'/></g>`,'15 15 70 70',"");
+root.setProperty('--pattern',tile('#c9a24a',.16,1.2));
+root.setProperty('--pattern-soft',tile('#c9a24a',.09,1));
+root.setProperty('--pattern-gold',tile('#fff1c4',.28,1.4));
+root.setProperty('--grain',svgURL(`<filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .55  0 0 0 0 .35  0 0 0 0 .4  0 0 0 .07 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/>`.replace('%23','#'),'0 0 180 180',""));
+root.setProperty('--m-piece',maskOf([1,1,-1,-1]));
+root.setProperty('--m-corner',svgURL(`<path d='M4 4 H60 C60 12 52 14 46 12 C40 10 36 18 42 22 C48 26 54 22 56 18 M4 4 V60 C12 60 14 52 12 46 C10 40 18 36 22 42 C26 48 22 54 18 56' fill='none' stroke='black' stroke-width='5' stroke-linecap='round'/><circle cx='4' cy='4' r='4'/>`));
+const heartMask=svgURL(`<path d='M50 90 C20 68 5 52 5 32 C5 17 17 6 31 6 C40 6 46 11 50 18 C54 11 60 6 69 6 C83 6 95 17 95 32 C95 52 80 68 50 90Z'/>`);
+root.setProperty('--m-heart',heartMask);
+
+/* ---------- falling paper pieces ---------- */
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const variants=[[1,1,-1,-1],[1,-1,1,-1],[-1,1,1,-1],[1,1,1,-1]];
+const bg=document.getElementById('bg');
+if(!reduce) for(let i=0;i<(innerWidth<700?10:18);i++){
+  const heart=i%4===0,s=heart?12+Math.random()*12:16+Math.random()*24;
+  const el=document.createElement('div');el.className='fall';
+  el.style.cssText=`--x:${Math.random()*100}%;--d:${16+Math.random()*16}s;--delay:${-Math.random()*30}s;--sw:${20+Math.random()*50}px;--s:${s}px;
+    --c:${i%3===0?'linear-gradient(135deg,#c9a24a,#f3dc9a)':'#e7a3b6'};--m:${heart?heartMask:maskOf(variants[i%4])}`;
+  el.innerHTML='<div class="sway"><div class="flutter"></div></div>';bg.appendChild(el);
+}
+
+/* ---------- content ---------- */
+const LETTERS=[
+ ['M','Mature','ature in the way she handles life.','mature.jpg','50% 28%',[1,1,-1,-1]],
+ ['A','Admirable','dmirable in her strength and character.','admirable.jpg','50% 22%',[-1,1,1,-1]],
+ ['R','Resilient','esilient through every challenge.','resilient.jpg','40% 40%',[1,-1,-1,1]],
+ ['I','Independent','ndependent but never afraid to care.','independent.jpg','50% 30%',[-1,-1,1,1]],
+ ['E','Empathetic','mpathetic, with a heart that understands.','moment1.jpg','50% 30%',[1,1,-1,-1]],
+ ['L','Loving','oving in her own simple ways.','loving.jpg','28% 45%',[-1,1,1,-1]],
+ ['L','Loyal','oyal to the people who matter.','moment2.jpg','50% 35%',[1,-1,-1,1]],
+ ['E','Elegant','legant, strong, and true to herself.','elegant.jpg','55% 30%',[-1,-1,1,1]],
+];
+const deco=`<div class="frame"></div><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i><i class="peel"></i>`;
+const pno=n=>`<div class="pno">${n}</div>`;
+const A=(d)=>`class="anim" style="--ad:${d}s"`;
+
+const cover=()=>`<div class="frame"></div><div class="content">
+  <div class="emblem"></div><div class="pre">A little book of</div>
+  <h1 class="script gold-text">Marielle</h1>
+  <div class="sub">every piece of you</div><div class="tap">Tap to open</div></div>`;
+const backCover=()=>`<div class="frame"></div><div class="content">
+  <div class="emblem"></div><div class="script gold-text" style="font-size:16cqw">with love</div>
+  <div class="pre">M · A · R · I · E · L · L · E</div></div>`;
+
+const dedication=n=>`${deco}<div class="content">
+  <div ${A(.1)}><div class="kicker">This book is for</div></div>
+  <div class="script gold-text anim" style="--ad:.25s">Marielle</div>
+  <div class="divider anim" style="--ad:.45s"><i></i></div>
+  <p ${A(.6)}>Some people are like puzzles: the more you come to know them, the more beautiful the picture becomes.</p>
+  <p ${A(.8)}>Here are eight little pieces of you, one for every letter of your name.</p>
+  <div class="sig anim" style="--ad:1s">Turn the page</div></div>${pno(n)}`;
+
+const letterPage=(i,n)=>{const [L,word,rest,img,pos,edges]=LETTERS[i];
+  return `${deco}<div class="content">
+  <div class="lp-head"><div class="badge anim" style="--ad:.1s"><b>${L}</b></div>
+    <div class="lp-title anim" style="--ad:.25s"><div class="kicker">Piece ${i+1} of 8</div><h2>${word}</h2></div></div>
+  <div class="photo"><div class="pp anim" style="--ad:.35s"><div class="pp-m" style="--pm:${maskOf(edges,9)}"><img src="assets/${img}" alt="Marielle — ${word}" style="object-position:${pos}" decoding="async" draggable="false"></div></div></div>
+  <p class="line anim" style="--ad:.7s"><span class="cap">${L}</span>${rest}</p></div>${pno(n)}`;};
+
+const gamePage=n=>`${deco}<div class="content game-root">
+  <div ${A(.05)}><div class="kicker">A little game</div></div><div class="h3 anim" style="--ad:.15s">The missing pieces</div>
+  <div class="sub anim" style="--ad:.3s">Tap two pieces to swap them, and put her back together.</div>
+  <div class="game-grid anim" style="--ad:.4s" role="group" aria-label="Photo puzzle"></div>
+  <div class="game-actions anim" style="--ad:.7s"><span class="moves">0 moves</span><button class="btn-soft shuffle">Shuffle</button></div>
+  <div class="win">Every piece in its place, just like you. 💗</div></div>${pno(n)}`;
+
+function jigsaw(cols,rows,W,H,cell){
+  let out='';const bw=.7;
+  const hz=(r,c)=>((r+c)%2?1:-1), vt=(r,c)=>((r+c)%2?-1:1);
+  for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
+    const e=[r===0?0:-vt(r-1,c), c===cols-1?0:hz(r,c), r===rows-1?0:vt(r,c), c===0?0:-hz(r,c-1)];
+    const a=Math.random()*Math.PI*2;
+    out+=cell(r,c,`left:calc(${c*bw} * ${W});top:calc(${r*bw} * ${H});width:${W};height:${H};--pm:${maskOf(e)};--ad:${.2+(r*cols+c)*.12}s;--fx:${(Math.cos(a)*45).toFixed(1)}cqw;--fy:${(Math.sin(a)*45).toFixed(1)}cqh;--fr:${((Math.random()*2-1)*80).toFixed(0)}deg`);
+  }
+  return `<div class="jig" style="width:calc(${cols*bw+.3} * ${W});height:calc(${rows*bw+.3} * ${H})">${out}</div>`;
+}
+const spellPage=n=>{const word='MARIELLE',S='min(25cqw,19cqh)';
+  return `${deco}<div class="content">
+  <div ${A(.05)}><div class="kicker">Put together, she spells</div></div>
+  ${jigsaw(4,2,S,S,(r,c,st)=>`<div class="jp anim ${(r+c)%2?'p':'g'}" style="${st}"><b style="font-size:calc(${S} * .42)">${word[r*4+c]}</b></div>`)}
+  <div class="divider anim" style="--ad:1.3s"><i></i></div>
+  <p class="msg anim" style="--ad:1.45s">Every piece of you, put together, makes something beautiful.</p>
+  <div class="dots anim" style="--ad:1.6s">M·A·R·I·E·L·L·E</div></div>${pno(n)}`;};
+
+const galleryPage=n=>{const H='min(30cqh,52cqw)',W=`calc(${H} * .66)`;
+  return `${deco}<div class="content">
+  <div ${A(.05)}><div class="kicker">Little moments</div></div><div class="h3 anim" style="--ad:.15s">Pieces of a night</div>
+  ${jigsaw(2,2,W,H,(r,c,st)=>`<div class="gp anim" style="${st}"><img src="assets/moment${r*2+c+1}.jpg" alt="Marielle" decoding="async" draggable="false"></div>`)}
+  <p class="msg anim" style="--ad:.9s">This book ends here, but your story keeps unfolding, one beautiful piece at a time.</p></div>${pno(n)}`;};
+
+const PAGES=[dedication,...LETTERS.map((_,i)=>n=>letterPage(i,n)),gamePage,spellPage,galleryPage];
+const TOTAL=PAGES.length;            // 12 inner pages
+const LAST=TOTAL+1;                  // index of back cover (13)
+function pageHTML(i){
+  if(i===0) return `<div class="page" data-density="hard"><div class="face cover">${cover()}</div></div>`;
+  if(i===LAST) return `<div class="page" data-density="hard"><div class="face cover backcover">${backCover()}</div></div>`;
+  const kind=i===1?'dedication':i===TOTAL-2?'game':i===TOTAL-1?'spell':i===TOTAL?'gallery':'lp';
+  return `<div class="page"><div class="face paper ${kind}">${PAGES[i-1](i)}</div></div>`;
+}
+
+/* ---------- book ---------- */
+const table=document.getElementById('table'),shift=document.getElementById('shift'),drop=shift.querySelector('.drop');
+const prevB=document.getElementById('prev'),nextB=document.getElementById('next'),ind=document.getElementById('ind');
+let flipbook=null,pw=0,ph=0,current=0;
+
+function measure(){
+  const W=innerWidth,H=innerHeight,short=H<=520;
+  const chrome=short?64:(W<600?160:128);
+  const portrait=H>W;
+  const ratio=portrait?.58:.7;               // taller pages on phones held upright
+  let w=Math.min((W-12)/2,560), h=w/ratio;
+  if(h>H-chrome){h=H-chrome;w=h*ratio;}
+  return {w:Math.floor(w),h:Math.floor(h)};
+}
+
+function build(start){
+  const s=measure();pw=s.w;ph=s.h;
+  root.setProperty('--pw',pw+'px');root.setProperty('--ph',ph+'px');
+  if(flipbook){try{flipbook.destroy();}catch(e){}}
+  const el=document.createElement('div');el.id='book';
+  const old=document.getElementById('book');if(old)old.remove();
+  drop.appendChild(el);
+  el.innerHTML=Array.from({length:LAST+1},(_,i)=>pageHTML(i)).join('');
+  // keep the puzzle's taps & drags from turning the page
+  el.querySelectorAll('.game-grid,.game-actions').forEach(n=>['mousedown','touchstart','pointerdown'].forEach(t=>n.addEventListener(t,e=>e.stopPropagation())));
+  flipbook=new St.PageFlip(el,{
+    width:pw,height:ph,size:'fixed',usePortrait:false,showCover:true,startPage:start,
+    flippingTime:reduce?400:1100,maxShadowOpacity:.55,drawShadow:true,
+    mobileScrollSupport:false,swipeDistance:25,showPageCorners:true,clickEventForward:true,autoSize:false
+  });
+  flipbook.loadFromHTML(el.querySelectorAll('.page'));
+  el.querySelectorAll('.game-root').forEach(initGame);
+  flipbook.on('flip',e=>{current=e.data;settle();});
+  flipbook.on('changeState',e=>{
+    if(e.data==='flipping'||e.data==='user_fold'){ // the book opens toward the centre while the cover lifts
+      if(current===0||current>=LAST) shift.className='shift';
+      prime();
+    }
+    if(e.data==='read') settle();
+  });
+  current=flipbook.getCurrentPageIndex();settle(true);
+}
+
+function spread(){ // indices of the visible pages
+  if(current<=0) return [0];
+  if(current>=LAST) return [LAST];
+  const l=current%2?current:current-1; return [l,l+1];
+}
+function prime(){ // start the "settling paper" motion on the neighbouring spreads as the page lifts
+  const vis=spread(),items=document.querySelectorAll('#book .page');
+  for(let i=Math.max(0,vis[0]-2);i<=Math.min(LAST,vis[vis.length-1]+2);i++)
+    if(!vis.includes(i)&&!items[i].classList.contains('in')) items[i].classList.add('in');
+}
+function settle(){
+  current=flipbook.getCurrentPageIndex();
+  shift.className='shift'+(current===0?' closed-front':current>=LAST?' closed-back':'');
+  const vis=spread();
+  const items=document.querySelectorAll('#book .page');
+  items.forEach((p,i)=>{const on=vis.includes(i);if(on&&!p.classList.contains('in'))p.classList.add('in');if(!on&&!p.classList.contains('stf__item')||(!on&&p.style.display==='none'))p.classList.remove('in');});
+  prevB.disabled=current<=0;nextB.disabled=current>=LAST;
+  ind.textContent=current===0?'Cover':current>=LAST?'The End':`Pages ${vis[0]}–${vis[1]} of ${TOTAL}`;
+  document.getElementById('controls').classList.toggle('at-end',current>=LAST);
+}
+
+prevB.onclick=()=>flipbook.flipPrev('top');
+nextB.onclick=()=>flipbook.flipNext('top');
+document.getElementById('again').onclick=()=>{shift.className='shift';flipbook.flip(0,'top');};
+addEventListener('keydown',e=>{if(e.key==='ArrowRight')flipbook.flipNext();if(e.key==='ArrowLeft')flipbook.flipPrev();});
+
+/* rotate tip for phones held upright */
+const tip=document.getElementById('rotateTip');
+let tipDismissed=false;try{tipDismissed=sessionStorage.getItem('mTip')==='1';}catch(e){}
+if(!tipDismissed)tip.classList.add('show');
+tip.onclick=()=>{tip.classList.remove('show');try{sessionStorage.setItem('mTip','1');}catch(e){}};
+
+/* ---------- puzzle game ---------- */
+function initGame(rootEl){
+  const grid=rootEl.querySelector('.game-grid'),moves=rootEl.querySelector('.moves'),host=rootEl.parentElement;
+  let order,sel=null,count=0;
+  const render=(changed=[])=>{grid.innerHTML=order.map((p,i)=>`<button class="tile${changed.includes(i)?' swap':''}" data-i="${i}" aria-label="Puzzle piece ${i+1}" style="background-position:${(p%3)*50}% ${Math.floor(p/3)*50}%"></button>`).join('');
+    moves.textContent=`${count} move${count===1?'':'s'}`;};
+  const shuffle=()=>{do{order=[...Array(9).keys()];for(let i=8;i>0;i--){const j=Math.floor(Math.random()*(i+1));[order[i],order[j]]=[order[j],order[i]];}}
+    while(order.filter((v,i)=>v===i).length>2);
+    count=0;sel=null;rootEl.classList.remove('solved');render([0,1,2,3,4,5,6,7,8]);};
+  grid.addEventListener('click',e=>{
+    const t=e.target.closest('.tile');if(!t||rootEl.classList.contains('solved'))return;
+    const i=+t.dataset.i;
+    if(sel===null){sel=i;t.classList.add('sel');return;}
+    let changed=[];
+    if(sel!==i){[order[sel],order[i]]=[order[i],order[sel]];count++;changed=[sel,i];}
+    sel=null;render(changed);
+    if(order.every((v,k)=>v===k)){rootEl.classList.add('solved');burst(host);}
+  });
+  rootEl.querySelector('.shuffle').addEventListener('click',shuffle);
+  shuffle();
+}
+function burst(host){
+  for(let i=0;i<28;i++){const b=document.createElement('i');b.className='burst';const a=Math.random()*Math.PI*2,d=22+Math.random()*28;
+    b.style.cssText=`--x:${Math.cos(a)*d}cqw;--y:${Math.sin(a)*d}cqh;--r:${(Math.random()*2-1)*540}deg;--z:${8+Math.random()*12}px;
+      --c:${i%2?'linear-gradient(135deg,#c9a24a,#f3dc9a)':'#e58aa6'};--m:${i%3?heartMask:maskOf(variants[i%4])};animation-delay:${Math.random()*.2}s`;
+    host.appendChild(b);setTimeout(()=>b.remove(),2400);}
+}
+
+/* ---------- boot & resize ---------- */
+build(0);
+let rt,lastW=innerWidth,lastH=innerHeight;
+addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{
+  const s=measure();if(Math.abs(s.w-pw)<4&&Math.abs(s.h-ph)<4)return;
+  build(current);
+},180);});
+})();
+</script>
+</body>
+</html>
